@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require "sinatra"
+require "watched_file"
+require "watched_file_repository"
+
+File.umask(0077)
+watched_files = WatchedFileRepository.new
+
+post '/files' do
+  watched_file = watched_files.create(params[:file][:filename], params[:file][:tempfile].read)
+
+  status 201
+  headers "Location" => url("/files/#{watched_file.id}")
+  nil
+end
+
+get "/files/:id" do
+  watched_file = watched_files.find(params[:id])
+  halt 202 unless watched_file.editing_complete?
+  watched_files.remove(watched_file)
+  halt 304 unless watched_file.changed?
+  watched_file.data
+end

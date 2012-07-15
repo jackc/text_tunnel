@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+
+require "rest_client"
+
+unless ARGV.size == 1
+  puts "text_tunnel must be called with exactly one argument"
+  exit
+end
+
+path = ARGV[0]
+# TODO - make port configurable?
+response = RestClient.post "http://localhost:4567/files", :file => File.new(path, "rb")
+raise "Unexpected response #{response.code}: #{response.body}" unless response.code == 201
+location = response.headers[:location]
+# TODO - gracefully accept Crtl+C to cancel edit -- and maybe add a message saying as much
+loop do
+  RestClient.get(location) do |response, request, result|
+    p response.code
+    case response.code
+    when 202 # Accepted -- request is still in progress
+      sleep 1
+    when 304 # Not Modified -- the remote edit didn't change anything
+      exit
+    when 200
+      File.write(path, response.body)
+      exit
+    else
+      raise "Unexpected response #{response.code}: #{response.body}"
+    end
+  end
+end
+
