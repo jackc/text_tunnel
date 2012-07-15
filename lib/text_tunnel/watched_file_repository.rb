@@ -1,4 +1,4 @@
-require "watched_file"
+require "text_tunnel/watched_file"
 
 class WatchedFileRepository
   def initialize
@@ -11,7 +11,7 @@ class WatchedFileRepository
   end
 
   def remove(watched_file)
-    @watched_files.delete(watched_file.object_id)
+    @watched_files.delete(watched_file.id)
   end
 
   def find(id)

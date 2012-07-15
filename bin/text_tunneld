@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 
 require "sinatra"
-require "watched_file"
-require "watched_file_repository"
+require "text_tunnel/watched_file"
+require "text_tunnel/watched_file_repository"
 
 File.umask(0077)
 watched_files = WatchedFileRepository.new
