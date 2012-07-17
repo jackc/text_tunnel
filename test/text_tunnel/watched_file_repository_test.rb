@@ -1,45 +1,33 @@
 require_relative "../test_helper"
 require "text_tunnel/watched_file_repository"
 
-# TODO - when editor is configurable take this stub out
-class WatchedFile
-  def open_editor
-  end
-end
-
-describe "WatchedFileRepository" do
-  before do
+class WatchedFileRepositoryTest < MiniTest::Unit::TestCase
+  def setup
     @repo = WatchedFileRepository.new
   end
 
-  describe "create" do
-    it "returns a WatchedFile" do
-      watched_file = @repo.create "foo", "bar"
-      assert_kind_of WatchedFile, watched_file
-    end
-
-    it "stores created WatchedFile" do
-      watched_file = @repo.create "foo", "bar"
-      assert_equal watched_file, @repo.find(watched_file.id)
-    end
+  def test_create_returns_a_WatchedFile
+    watched_file = @repo.create "foo", "bar"
+    assert_kind_of WatchedFile, watched_file
   end
 
-  describe "remove" do
-    it "makes watched file no longer findable" do
-      watched_file = @repo.create "foo", "bar"
-      @repo.remove(watched_file)
-      assert_raises(KeyError) { @repo.find(watched_file.id) }      
-    end
+  def test_create_stores_created_WatchedFile
+    watched_file = @repo.create "foo", "bar"
+    assert_equal watched_file, @repo.find(watched_file.id)
   end
 
-  describe "find" do
-    it "finds existing WatchedFile" do
-      watched_file = @repo.create "foo", "bar"
-      assert_equal watched_file, @repo.find(watched_file.id)
-    end
+  def test_remove_makes_watched_file_no_longer_findable
+    watched_file = @repo.create "foo", "bar"
+    @repo.remove(watched_file)
+    assert_raises(KeyError) { @repo.find(watched_file.id) }      
+  end
 
-    it "raises KeyError on missing id" do
-      assert_raises(KeyError) { @repo.find("missing") }
-    end
+  def test_find_existing_WatchedFile
+    watched_file = @repo.create "foo", "bar"
+    assert_equal watched_file, @repo.find(watched_file.id)
+  end
+
+  def test_find_raises_KeyError_on_missing_id
+    assert_raises(KeyError) { @repo.find("missing") }
   end
 end

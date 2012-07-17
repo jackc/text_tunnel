@@ -18,9 +18,12 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency 'rest-client', '~> 1.6.7'
   gem.add_dependency 'sinatra', "~> 1.3.2"
+  gem.add_dependency 'trollop', '~> 1.16.2'
+  gem.add_dependency 'thin', '~> 1.3.1'
   
   gem.add_development_dependency 'minitest', "~> 3.2.0"
   gem.add_development_dependency 'turn', "~> 0.9.6"
   gem.add_development_dependency 'guard', "~> 1.2.3"
   gem.add_development_dependency 'guard-minitest', "~> 0.5.0"
+  gem.add_development_dependency 'rack-test', '~> 0.6.1'
 end

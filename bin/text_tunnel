@@ -1,6 +1,10 @@
 #!/usr/bin/env ruby
 
+gem 'rest-client', '~> 1.6.7'
 require "rest_client"
+
+# TODO rewrite with Trollop
+
 
 unless ARGV.size == 1
   puts "text_tunnel must be called with exactly one argument"
@@ -13,6 +17,9 @@ response = RestClient.post "http://localhost:4567/files", :file => File.new(path
 raise "Unexpected response #{response.code}: #{response.body}" unless response.code == 201
 location = response.headers[:location]
 # TODO - gracefully accept Crtl+C to cancel edit -- and maybe add a message saying as much
+
+# TODO rewrite whole client
+# Don't quit until prompted by user
 loop do
   RestClient.get(location) do |response, request, result|
     p response.code

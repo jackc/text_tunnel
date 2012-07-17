@@ -1,24 +1,41 @@
 #!/usr/bin/env ruby
 
-require "sinatra"
+gem 'trollop', '~> 1.16.2'
+require "trollop"
+
+require "text_tunnel/version"
+
+config = Trollop.options do
+  version "text_tunnel #{TextTunnel::VERSION}"
+
+  opt :editor, "Editor command e.g. /usr/local/bin/subl", :type => :string
+  opt :daemon, "Run as daemon in background"
+  opt :port, "Port", :type => :int, :default => 1777
+  opt :log, "Log file location"
+  opt :pid, "PID file location"
+end
+
 require "text_tunnel/watched_file"
 require "text_tunnel/watched_file_repository"
+require "text_tunnel/server"
 
 File.umask(0077)
-watched_files = WatchedFileRepository.new
 
-post '/files' do
-  watched_file = watched_files.create(params[:file][:filename], params[:file][:tempfile].read)
+Server.configure do |s|
+  s.set :environment, "production"
+  s.set :bind, "127.0.0.1"
+  s.set :port, config[:port]
 
-  status 201
-  headers "Location" => url("/files/#{watched_file.id}")
-  nil
+  # Nesting callback because Sinatra evaluates the first automatically, so to
+  # get a callback usable by Server it has to be wrapped.
+  s.set :editor_spawner do
+    Proc.new do |local_path|
+      pid = spawn config[:editor], local_path
+      Process.detach(pid)
+    end
+  end
+
+  s.set :watched_files, WatchedFileRepository.new
 end
 
-get "/files/:id" do
-  watched_file = watched_files.find(params[:id])
-  halt 202 unless watched_file.editing_complete?
-  watched_files.remove(watched_file)
-  halt 304 unless watched_file.changed?
-  watched_file.data
-end
+Server.run!
