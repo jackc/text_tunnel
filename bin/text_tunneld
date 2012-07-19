@@ -41,8 +41,14 @@ Server.configure do |s|
 end
 
 # TODO daemon mode
-# TODO pid writing
 
-STDERR.reopen(open(config[:log], "w+")) if config[:log]
+if config[:log]
+  STDERR.reopen(open(config[:log], "w+"))
+end
+
+if config[:pid]
+  File.write(config[:pid], Process.pid.to_s)
+  at_exit { File.delete(config[:pid]) }
+end
 
 Server.run!
