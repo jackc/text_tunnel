@@ -11,8 +11,8 @@ config = Trollop.options do
   opt :editor, "Editor command e.g. /usr/local/bin/subl", :type => :string
   opt :daemon, "Run as daemon in background"
   opt :port, "Port", :type => :int, :default => 1777
-  opt :log, "Log file location"
-  opt :pid, "PID file location"
+  opt :log, "Log file location", :type => :string
+  opt :pid, "PID file location", :type => :string
 end
 
 require "text_tunnel/watched_file"
@@ -36,6 +36,13 @@ Server.configure do |s|
   end
 
   s.set :watched_files, WatchedFileRepository.new
+
+  s.enable :logging
 end
+
+# TODO daemon mode
+# TODO pid writing
+
+STDERR.reopen(open(config[:log], "w+")) if config[:log]
 
 Server.run!

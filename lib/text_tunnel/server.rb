@@ -5,6 +5,9 @@ class Server < Sinatra::Base
   post '/files' do
     watched_file = watched_files.create(params[:file][:filename], params[:file][:tempfile].read)
     spawn_editor(watched_file.local_path)
+
+    logger.info "#{watched_file.id} - new - #{params[:file][:filename]} (#{watched_file.data.size} bytes)"
+
     status 201
     etag watched_file.hash
     headers "Location" => url("/files/#{watched_file.id}")
@@ -12,15 +15,22 @@ class Server < Sinatra::Base
   end
 
   get "/files/:id" do
+    logger.debug "#{params[:id]} - poll"
+
     watched_file = watched_files.find(params[:id])
     watched_file.poll
     etag watched_file.hash
-    watched_file.data
+    body watched_file.data
+    
+    logger.info "#{params[:id]} - sent - #{watched_file.data.size} bytes"
   end
 
   delete "/files/:id" do
     watched_file = watched_files.find(params[:id])
     watched_files.remove(watched_file)
+
+    logger.info "#{params[:id]} - deleted"
+
     nil
   end
 
