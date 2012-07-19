@@ -6,7 +6,7 @@ require "trollop"
 require "text_tunnel/version"
 
 config = Trollop.options do
-  version "text_tunnel #{TextTunnel::VERSION}"
+  version "text_tunneld #{TextTunnel::VERSION}"
 
   opt :editor, "Editor command e.g. /usr/local/bin/subl", :type => :string
   opt :daemon, "Run as daemon in background"

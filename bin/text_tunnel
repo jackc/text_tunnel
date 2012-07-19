@@ -3,37 +3,79 @@
 gem 'rest-client', '~> 1.6.7'
 require "rest_client"
 
-# TODO rewrite with Trollop
+gem 'trollop', '~> 1.16.2'
+require "trollop"
 
+require "text_tunnel/version"
 
-unless ARGV.size == 1
-  puts "text_tunnel must be called with exactly one argument"
-  exit
+config = Trollop.options do
+  version "text_tunnel #{TextTunnel::VERSION}"
+  banner <<-EOS
+Usage:
+       text_tunnel [options] <filename>
+where [options] are:
+  EOS
+
+  opt :port, "Port", :type => :int, :default => 1777
 end
 
-path = ARGV[0]
-# TODO - make port configurable?
-response = RestClient.post "http://localhost:4567/files", :file => File.new(path, "rb")
-raise "Unexpected response #{response.code}: #{response.body}" unless response.code == 201
-location = response.headers[:location]
-# TODO - gracefully accept Crtl+C to cancel edit -- and maybe add a message saying as much
+Trollop.die "text_tunnel requires exactly one filename argument" unless ARGV.size == 1
 
-# TODO rewrite whole client
-# Don't quit until prompted by user
-loop do
-  RestClient.get(location) do |response, request, result|
-    p response.code
-    case response.code
-    when 202 # Accepted -- request is still in progress
+# Interface is compatible with RestClient exception
+class UnexpectedResponseError < StandardError
+  attr_reader :response
+
+  def initialize(response)
+    @response = response
+  end
+
+  def http_code
+    response.code.to_i
+  end
+
+  def http_body
+    response.body
+  end  
+end
+
+begin
+  path = ARGV[0]
+
+  # Initialize before block so it can be written from block
+  location = nil
+  etag = nil
+
+  open(path, "rb") do |f|
+    response = RestClient.post "http://localhost:#{config[:port]}/files", :file => f
+    raise UnexpectedResponseError.new(response) unless response.code == 201
+    location = response.headers[:location]
+    etag = response.headers[:etag]
+  end
+
+  puts "Editing #{path} via text_tunnel, CRTL+C to stop"
+
+  loop do
+    RestClient.get(location, :if_none_match => etag) do |response, request, result|
+      if response.code == 200
+        etag = response.headers[:etag]
+        File.write(path, response.body)
+        puts "Wrote #{path} at #{Time.now}"
+      elsif response.code == 304
+        # Not Modified -- do nothing
+      else
+        raise UnexpectedResponseError.new(response)
+      end
+
       sleep 1
-    when 304 # Not Modified -- the remote edit didn't change anything
-      exit
-    when 200
-      File.write(path, response.body)
-      exit
-    else
-      raise "Unexpected response #{response.code}: #{response.body}"
     end
   end
+rescue Errno::ECONNREFUSED => e
+  puts "ERROR: Unable to connect to text_tunneld web server."
+rescue RestClient::Exception, UnexpectedResponseError => e
+  puts "ERROR: Connected to a web server, but received an unexpected response."
+  puts "HTTP Status Code: #{e.http_code}"
+  puts "HTTP Body:"
+  puts e.http_body
+rescue Interrupt
+  puts "Exiting..."
 end
-
