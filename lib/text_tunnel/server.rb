@@ -18,7 +18,11 @@ class Server < Sinatra::Base
     watched_file.data
   end
 
-  # TODO add delete files
+  delete "/files/:id" do
+    watched_file = watched_files.find(params[:id])
+    watched_files.remove(watched_file)
+    nil
+  end
 
   def watched_files
     settings.watched_files

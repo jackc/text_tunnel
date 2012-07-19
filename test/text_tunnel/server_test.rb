@@ -41,5 +41,9 @@ class ServerTest < MiniTest::Unit::TestCase
     get location
     assert_equal 200, last_response.status
     assert_equal "new content", last_response.body
+
+    delete location
+    assert_equal 200, last_response.status
+    assert_raises(KeyError) { @watched_files.find(watched_file_id) }
   end
 end
