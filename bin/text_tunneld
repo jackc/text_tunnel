@@ -40,7 +40,9 @@ Server.configure do |s|
   s.enable :logging
 end
 
-# TODO daemon mode
+if config[:daemon]
+  Process.daemon(true)
+end
 
 if config[:log]
   STDERR.reopen(open(config[:log], "w+"))
