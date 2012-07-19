@@ -25,6 +25,8 @@ class Client
   def initialize(port, file_path)
     @file_path = file_path
 
+    # TODO - handle new files
+    # TODO - handle directories
     open(file_path, "rb") do |f|
       response = RestClient.post "http://localhost:#{port}/files", :file => f
       raise UnexpectedResponseError.new(response) unless response.code == 201
@@ -39,6 +41,8 @@ class Client
     raise UnexpectedResponseError.new(response) unless response.code == 200
 
     @etag = response.headers[:etag]
+
+    # TODO - gracefully handle unable to write due to permissions
     File.write(@file_path, response.body)
   rescue RestClient::NotModified
     false
