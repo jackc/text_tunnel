@@ -33,18 +33,15 @@ class Client
     end    
   end
 
-  # Returns true if a change was made
+  # Returns a truthy value if a change was made
   def poll
-    RestClient.get(@location, :if_none_match => @etag) do |response, request, result|
-      return false if response.code == 304
-      if response.code == 200
-        @etag = response.headers[:etag]
-        File.write(@file_path, response.body)
-        return true
-      end
+    response = RestClient.get(@location, :if_none_match => @etag)
+    raise UnexpectedResponseError.new(response) unless response.code == 200
 
-      raise UnexpectedResponseError.new(response)
-    end
+    @etag = response.headers[:etag]
+    File.write(@file_path, response.body)
+  rescue RestClient::NotModified
+    false
   end
 
   def cleanup
