@@ -1,8 +1,5 @@
 #!/usr/bin/env ruby
 
-gem 'rest-client', '~> 1.6.7'
-require "rest_client"
-
 gem 'trollop', '~> 1.16.2'
 require "trollop"
 
@@ -20,54 +17,19 @@ where [options] are:
 end
 
 Trollop.die "text_tunnel requires exactly one filename argument" unless ARGV.size == 1
+file_path = ARGV[0]
 
-# Interface is compatible with RestClient exception
-class UnexpectedResponseError < StandardError
-  attr_reader :response
-
-  def initialize(response)
-    @response = response
-  end
-
-  def http_code
-    response.code.to_i
-  end
-
-  def http_body
-    response.body
-  end  
-end
-
+require "text_tunnel/client"
 begin
-  path = ARGV[0]
-
-  # Initialize before block so it can be written from block
-  location = nil
-  etag = nil
-
-  open(path, "rb") do |f|
-    response = RestClient.post "http://localhost:#{config[:port]}/files", :file => f
-    raise UnexpectedResponseError.new(response) unless response.code == 201
-    location = response.headers[:location]
-    etag = response.headers[:etag]
-  end
-
-  puts "Editing #{path} via text_tunnel, CRTL+C to stop"
+  client = Client.new(config[:port], file_path)
+  puts "Editing #{file_path} via text_tunnel, CRTL+C to stop"
 
   loop do
-    RestClient.get(location, :if_none_match => etag) do |response, request, result|
-      if response.code == 200
-        etag = response.headers[:etag]
-        File.write(path, response.body)
-        puts "Wrote #{path} at #{Time.now}"
-      elsif response.code == 304
-        # Not Modified -- do nothing
-      else
-        raise UnexpectedResponseError.new(response)
-      end
-
-      sleep 1
+    if client.poll
+      puts "Wrote #{file_path} at #{Time.now}"
     end
+
+    sleep 1
   end
 rescue Errno::ECONNREFUSED => e
   puts "ERROR: Unable to connect to text_tunneld web server."
@@ -78,4 +40,6 @@ rescue RestClient::Exception, UnexpectedResponseError => e
   puts e.http_body
 rescue Interrupt
   puts "Exiting..."
+ensure
+  client.cleanup
 end
