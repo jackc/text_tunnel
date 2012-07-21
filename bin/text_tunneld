@@ -8,12 +8,15 @@ require "text_tunnel/version"
 config = Trollop.options do
   version "text_tunneld #{TextTunnel::VERSION}"
 
-  opt :editor, "Editor command e.g. /usr/local/bin/subl", :type => :string
+  opt :editor, "Editor command e.g. /usr/local/bin/subl (otherwise will use ENV[\"EDITOR\"])", :type => :string
   opt :daemon, "Run as daemon in background"
   opt :port, "Port", :type => :int, :default => 1777
   opt :log, "Log file location", :type => :string
   opt :pid, "PID file location", :type => :string
 end
+
+editor = config[:editor] || ENV["EDITOR"]
+Trollop.die "No --editor argument or EDITOR environment variable" unless editor
 
 require "text_tunnel/watched_file"
 require "text_tunnel/watched_file_repository"
@@ -30,7 +33,11 @@ Server.configure do |s|
   # get a callback usable by Server it has to be wrapped.
   s.set :editor_spawner do
     Proc.new do |local_path|
-      pid = spawn config[:editor], local_path
+      # Ordinarily, string concatenation should not be used for the command
+      # string to spawn. However, if editor and local path are passed as
+      # separate variables spawn will fail if the editor command has options
+      # as it will treat the options as part of the file path.
+      pid = spawn "#{editor} #{local_path}"
       Process.detach(pid)
     end
   end
