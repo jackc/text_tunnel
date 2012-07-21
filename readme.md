@@ -4,7 +4,7 @@ Text Tunnel is a tool to edit remote files with a local editor.
 
 ## How It Works
 
-The text_tunneld server runs on the local host. Using SSH a reverse port-
+The text_tunneld server runs on the local host. Using SSH, a reverse port
 forward is established on the remote host connecting back to the server. The
 text_tunnel client runs on the remote machine and is used as the editor
 binary. When the client is told to edit a file it sends the file to the
