@@ -45,3 +45,5 @@ retype the reverse port forward on the command line every time.
 Consider setting text_tunnel as your EDITOR environment variable on your
 remote hosts. This will let you use a local text editor for git commit
 messages, crontabs, etc.
+
+text_tunneld supports a background daemon mode. Run text_tunneld -h for full options.
