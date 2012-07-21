@@ -35,6 +35,8 @@ rescue Errno::ECONNREFUSED => e
   puts "ERROR: Unable to connect to text_tunneld web server."
 rescue Errno::EISDIR
   puts "ERROR: #{file_path} is a directory."
+rescue Errno::EACCES
+  puts "ERROR: Access denied - #{file_path}"
 rescue RestClient::Exception, UnexpectedResponseError => e
   puts "ERROR: Connected to a web server, but received an unexpected response."
   puts "HTTP Status Code: #{e.http_code}"
