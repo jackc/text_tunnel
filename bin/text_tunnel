@@ -41,5 +41,5 @@ rescue RestClient::Exception, UnexpectedResponseError => e
 rescue Interrupt
   puts "Exiting..."
 ensure
-  client.cleanup
+  client.cleanup if client
 end
