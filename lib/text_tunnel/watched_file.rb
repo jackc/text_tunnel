@@ -42,6 +42,6 @@ class WatchedFile
     end
 
     def sanitize_name(name)
-      name.gsub(/\W/, "")
+      name.gsub(/[^a-zA-Z0-9-_. ]/, "").strip
     end
 end

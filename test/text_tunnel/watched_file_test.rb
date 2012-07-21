@@ -35,8 +35,26 @@ class WatchedFileTest < MiniTest::Unit::TestCase
   end
 
   def test_sanitize_name_replaces_bad_characters
-    dirty_name = "/\\\"'asdf#!@$ %^&*(){}}<>?'"
+    dirty_name = "/\\\"'asdf#!@$%^&*(){}}<>?'"
     sanitized_name = WatchedFile.new("foo", "bar").instance_eval { sanitize_name(dirty_name) }
     assert_equal "asdf", sanitized_name
+  end
+
+  def test_sanitize_name_does_not_replace_periods
+    dirty_name = "foo.rb"
+    sanitized_name = WatchedFile.new("foo", "bar").instance_eval { sanitize_name(dirty_name) }
+    assert_equal "foo.rb", sanitized_name
+  end
+
+  def test_sanitize_name_leaves_spaced_in_middle
+    dirty_name = "foo bar.rb"
+    sanitized_name = WatchedFile.new("foo", "bar").instance_eval { sanitize_name(dirty_name) }
+    assert_equal "foo bar.rb", sanitized_name
+  end
+
+  def test_sanitize_name_trims_spaces_on_edges
+    dirty_name = " foo bar.rb "
+    sanitized_name = WatchedFile.new("foo", "bar").instance_eval { sanitize_name(dirty_name) }
+    assert_equal "foo bar.rb", sanitized_name
   end
 end
