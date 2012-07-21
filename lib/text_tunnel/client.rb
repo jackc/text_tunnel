@@ -26,7 +26,6 @@ class Client
     @file_path = file_path
 
     # TODO - handle new files
-    # TODO - handle directories
     response = RestClient.post "http://localhost:#{port}/files",
       :name => File.basename(@file_path),
       :data => File.read(file_path)
