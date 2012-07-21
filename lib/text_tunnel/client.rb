@@ -27,12 +27,12 @@ class Client
 
     # TODO - handle new files
     # TODO - handle directories
-    open(file_path, "rb") do |f|
-      response = RestClient.post "http://localhost:#{port}/files", :file => f
-      raise UnexpectedResponseError.new(response) unless response.code == 201
-      @location = response.headers[:location]
-      @etag = response.headers[:etag]
-    end    
+    response = RestClient.post "http://localhost:#{port}/files",
+      :name => File.basename(@file_path),
+      :data => File.read(file_path)
+    raise UnexpectedResponseError.new(response) unless response.code == 201
+    @location = response.headers[:location]
+    @etag = response.headers[:etag]
   end
 
   # Returns a truthy value if a change was made

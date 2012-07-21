@@ -3,10 +3,10 @@ require "sinatra/base"
 
 class Server < Sinatra::Base
   post '/files' do
-    watched_file = watched_files.create(params[:file][:filename], params[:file][:tempfile].read)
+    watched_file = watched_files.create(params[:name], params[:data])
     spawn_editor(watched_file.local_path)
 
-    logger.info "#{watched_file.id} - new - #{params[:file][:filename]} (#{watched_file.data.size} bytes)"
+    logger.info "#{watched_file.id} - new - #{params[:name]} (#{watched_file.data.size} bytes)"
 
     status 201
     etag watched_file.hash

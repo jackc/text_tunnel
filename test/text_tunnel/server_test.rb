@@ -26,7 +26,7 @@ class ServerTest < MiniTest::Unit::TestCase
   end
 
   def test_complete_editing_session
-    post "/files", "file" => Rack::Test::UploadedFile.new(__FILE__, "text/plain")
+    post "/files", "name" => "foo", :data => "bar"
     location = last_response["Location"]
     etag = last_response["Etag"]
 
