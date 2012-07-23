@@ -49,10 +49,13 @@ messages, crontabs, etc.
 
 text_tunneld supports a background daemon mode. Run text_tunneld -h for full options.
 
-Version History
-===============
+## Version History
 
 * **0.1.1**
   * Add compatibility with older patch versions of Ruby 1.9.2.
 * **0.1.0**
   * Initial release
+
+## License
+
+Copyright (c) 2012 Jack Christensen, released under the MIT license
