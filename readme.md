@@ -14,6 +14,7 @@ server for changes and downloads them whenever they occur.
 ## Installation
 
 The text_tunnel gem needs to be installed on both the local and remote hosts.
+Ruby 1.9.2+ required.
 
     gem install text_tunnel
 
@@ -47,3 +48,11 @@ remote hosts. This will let you use a local text editor for git commit
 messages, crontabs, etc.
 
 text_tunneld supports a background daemon mode. Run text_tunneld -h for full options.
+
+Version History
+===============
+
+* **0.1.1**
+  * Add compatibility with older patch versions of Ruby 1.9.2.
+* **0.1.0**
+  * Initial release

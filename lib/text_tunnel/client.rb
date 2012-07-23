@@ -3,6 +3,8 @@
 gem 'rest-client', '~> 1.6.7'
 require "rest_client"
 
+require "text_tunnel/backport"
+
 # Interface is compatible with RestClient exception
 class UnexpectedResponseError < StandardError
   attr_reader :response
