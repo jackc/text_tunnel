@@ -51,6 +51,8 @@ text_tunneld supports a background daemon mode. Run text_tunneld -h for full opt
 
 ## Version History
 
+* **Master**
+  * Unblock INT signal for bin/text_tunnel. This allows usage with crontab -e.
 * **0.1.1**
   * Add compatibility with older patch versions of Ruby 1.9.2.
 * **0.1.0**
