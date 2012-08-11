@@ -54,13 +54,21 @@ configure the fallback console editor.
     export EDITOR='/usr/local/bin/text_tunnel --fallback-editor=nano'
 
 text_tunneld supports a background daemon mode. Run text_tunneld -h for full
-options.
+options. You may want to configure it to run automatically when you log in to
+your desktop environment. Sadly, the exact means of doing this vary across
+platforms. On Ubuntu 12.04 with the Gnome Classic desktop environment you can
+configure a program to autostart in Applications -> System Tools ->
+Preferences -> Startup Applications. The following command would start
+text_tunneld in background mode with the "subl" editor.
+
+    text_tunneld --editor subl --daemon
 
 ## Version History
 
 * **Master**
   * Unblock INT signal for bin/text_tunnel. This allows usage with crontab -e.
   * Fall back to local editor if text_tunneld server is unreachable.
+  * Added information to readme about autostarting on desktop login.
 * **0.1.1**
   * Add compatibility with older patch versions of Ruby 1.9.2.
 * **0.1.0**
