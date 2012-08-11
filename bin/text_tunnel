@@ -14,6 +14,7 @@ where [options] are:
   EOS
 
   opt :port, "Port", :type => :int, :default => 1777
+  opt :fallback_editor, "Fallback editor if error connecting to text_tunneld web server", :default => "vi"
 end
 
 Trollop.die "text_tunnel requires exactly one filename argument" unless ARGV.size == 1
@@ -23,6 +24,12 @@ file_path = ARGV[0]
 # is launched by crontab -e it blocks or ignores the INT signal. This restores
 # default functionality.
 Signal.trap "INT", "DEFAULT"
+
+def try_fallback_editor(fallback_editor, file_path)
+  puts "Attempting fallback editor: #{fallback_editor} #{file_path}"
+  success = system fallback_editor, file_path
+  puts "ERROR: Fallback editor failed." unless success
+end
 
 require "text_tunnel/client"
 begin
@@ -38,6 +45,7 @@ begin
   end
 rescue Errno::ECONNREFUSED => e
   puts "ERROR: Unable to connect to text_tunneld web server."
+  try_fallback_editor config[:fallback_editor], file_path
 rescue Errno::EISDIR
   puts "ERROR: #{file_path} is a directory."
 rescue Errno::EACCES
@@ -47,6 +55,7 @@ rescue RestClient::Exception, UnexpectedResponseError => e
   puts "HTTP Status Code: #{e.http_code}"
   puts "HTTP Body:"
   puts e.http_body
+  try_fallback_editor config[:fallback_editor], file_path
 rescue Interrupt
   puts "Exiting..."
 ensure
