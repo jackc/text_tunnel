@@ -19,6 +19,11 @@ end
 Trollop.die "text_tunnel requires exactly one filename argument" unless ARGV.size == 1
 file_path = ARGV[0]
 
+# Ensure that we will receive the interrupt (crtl+c) signal. When text_tunnel
+# is launched by crontab -e it blocks or ignores the INT signal. This restores
+# default functionality.
+Signal.trap "INT", "DEFAULT"
+
 require "text_tunnel/client"
 begin
   client = Client.new(config[:port], file_path)
