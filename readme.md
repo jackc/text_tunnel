@@ -65,7 +65,7 @@ text_tunneld in background mode with the "subl" editor.
 
 ## Version History
 
-* **Master**
+* **0.2.0**
   * Unblock INT signal for bin/text_tunnel. This allows usage with crontab -e.
   * Fall back to local editor if text_tunneld server is unreachable.
   * Added information to readme about autostarting on desktop login.
