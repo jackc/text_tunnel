@@ -51,7 +51,7 @@ messages, crontabs, etc. If the text_tunneld server is unavailable it will
 seamlessly fall back to vi. You can use the --fallback-editor option to
 configure the fallback console editor.
 
-    export EDITOR='/usr/local/bin/text_tunnel --fallback-editor=nano
+    export EDITOR='/usr/local/bin/text_tunnel --fallback-editor=nano'
 
 text_tunneld supports a background daemon mode. Run text_tunneld -h for full
 options.
